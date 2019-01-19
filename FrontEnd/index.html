@@ -1,19 +1,31 @@
 <html>
-<head>
-</head>
-<body>
-<div id = "opponentDisplay">
-    <img src="unknownCard.png" id="opponentCard" width="300px" height=auto>
-	<div id= "opponentCash"> 55 </div>
-	
-</div>
-<div id ="playerDisplay">
-    <img src="unknownCard.png" id="playerCard" width="300px" height=auto>
-    <div id= "playerCash"> 55 </div>
-    <input type="submit" name="fold" value="Fold" onclick="fold()">
-    <input type="submit" name="callOrRaise" value="Call/Raise" onclick="callOrRaise()">
-    <input type="text" name="raiseValue" value="0">
-</div>
-<script src="functions.js"></script>
-</body>
+    <head>
+        <link rel="stylesheet" type="text/css" href="index.css">
+    </head>
+    <body>
+        <table>
+            
+            <tr>
+                <!-- LOOP TO CREATE AS MANY OPPONENTS AS POSSIBLE - give them unique id based off player-->
+                <td id = "opponentDisplay">
+                    <!-- if this is a player, change the border: document.getElementById("???").style.border= "1px solid red" -->;
+                    <img src="cards/unknownCard.png" id="opponentCard" width="200" height=auto><br /> <!-- CARD SOURCE DEPENDS ON PLAYER'S ACTUAL CARD -->
+	                Chips: <span id= "opponentChips">55</span><br /> <!-- CHIPS DEPENDS ON PLAYER'S CHIPS-->
+                    Current Bet: <span id= "opponentBet">55</span> <!-- BET DEPENDS ON CURRENT BET-->
+                </td>
+                <!-- END LOOP -->
+                <td id ="playerDisplay"> 
+                    <img src="cards/unknownCard.png" id="playerCard" width="200" height=auto><br />
+                    Chips: <span id= "playerChips">55</span><br /> <!-- CHIPS DEPENDS ON PLAYER'S CHIPS-->
+                    Current Bet: <span id= "playerBet">55</span><br /><!-- BET DEPENDS ON CURRENT BET-->
+
+                    <button id="fold" onclick="fold()">Fold</button>
+                    <button type="submit" id="callOrRaise" value="0" onclick="callOrRaise()">Call</button>
+                    <input type="number" id="raiseValue" value="0" min="0" onKeyUp="buttonUpdate()" oninput="buttonUpdate()">
+
+                </td>
+            </tr>
+        </table>
+        <script src="userInput.js"></script>
+    </body>
 </html>
