@@ -8,14 +8,13 @@ class Card:
 		self.value = value
 
 class Player:
-	def __init__(self,id,isAI,card):
+	def __init__(self,id,isAI):
 		self.id = id
 		self.isAI = isAI
 		self.chips = 20
 		self.bet = 1
-		self.card = card
+		self.card = None
 		self.hasFolded = False
-		self.hasCalled = False
 	def confirmBet(self):
 		time.sleep(1)
 		return 5
@@ -54,9 +53,9 @@ class Game:
 					
 		random.shuffle(self.cardDeck)
 		
-		self.players.append(Player('ai1',0, self.cardDeck[1]))
+		self.players.append(Player('ai1',0))
 		#self.players.append(Player('ai2',0, self.cardDeck[1]))
-		self.players.append(HumanPlayer('human',0, self.cardDeck[1]))
+		self.players.append(HumanPlayer('human',0))
 			
 	def main(self):
 		startingPlayerIndex = 0
@@ -67,48 +66,69 @@ class Game:
 			maxBet = 1;
 			maxBetPlayer = startingPlayerIndex;
 			firstMove = True
+			
 			# GIVE PLAYERS CARDS & SET INITIAL BET
+			for player in self.players :
+				player.card = self.cardDeck.pop(0)
+				
+			
 			while(currentPlayerIndex != maxBetPlayer or firstMove == True)	:
 				firstMove = False
 				print('*' * 10)
 				print('PLAYER TURN: ' + 'Player ' + str(self.players[currentPlayerIndex].id)) 
 				print('Current Bets:')
 				for player in self.players : 
-					plInfo = '- ' + 'Player ' + str(player.id) + '(' + str(player.chips) +')'+ ' - ' + str(player.bet)
+					plInfo = '- ' + 'Player ' + str(player.id) + '(+' + str(player.card.value) +'+)'+ '(' + str(player.chips) +')'+ ' - ' + str(player.bet)
 					if player.hasFolded == True : 
 						plInfo = plInfo + '(folded)'
 					print(plInfo)
 				
 				bet = self.players[currentPlayerIndex].confirmBet()
+				
 				if bet == -1 :# FOLD
 					self.players[currentPlayerIndex].hasFolded = True
-					activeBetters[currentPlayerIndex] = 0
 					
 				elif bet == 0 : # CALL
-					self.players[currentPlayerIndex].bet = maxBet
-					self.players[currentPlayerIndex].hasCalled = True
+					if self.players[currentPlayerIndex].chips < maxBet :
+						self.players[currentPlayerIndex].bet = self.players[currentPlayerIndex].chips
+					else : 
+						self.players[currentPlayerIndex].bet = maxBet
 				else : # RAISE
-					maxBet = maxBet + int(bet)
-					self.players[currentPlayerIndex].bet = maxBet
-					maxBetPlayer = currentPlayerIndex
+					if self.players[currentPlayerIndex].chips < (maxBet + int(bet)): 
+						self.players[currentPlayerIndex].bet = self.players[currentPlayerIndex].chips
+					else : 
+						maxBet = maxBet + int(bet)
+						self.players[currentPlayerIndex].bet = maxBet
+						maxBetPlayer = currentPlayerIndex
 			
 				
 				validNextPlayerTurn = False
 				while(validNextPlayerTurn == False) :
 					currentPlayerIndex = (currentPlayerIndex + 1) % len(self.players)
-					if activeBetters[currentPlayerIndex] == 1 :
+					if self.players[currentPlayerIndex].hasFolded == False :
 						validNextPlayerTurn = True
 					if self.players[currentPlayerIndex].bet == self.players[currentPlayerIndex].chips : 
 						validNextPlayerTurn = False
-			if sum(activeBetters) == 1:
-				reward = -1 * self.players[maxBetPlayer]
-				for player in self.players:
-					reward = reward + player.bet
-				self.players[currentPlayerIndex].chips += reward
-				for player in self.players:
-					player.bet = 0
+			currentWinner = []
+			maxVal = -1
+			pot = 0
+			for player in self.players :
+				player.chips -= player.bet
+				pot += player.bet
+				player.bet = 1
+				if player.hasFolded != True :
+					if player.card.value > maxVal :
+						currentWinner = []
+						currentWinner.append(player)
+						maxVal = player.card.value
+					elif player.card.value == maxVal :
+						currentWinnder.append(player)
+				else : 
+					player.hasFolded = False
 				
-			# CHECK WHO WINS AND CRAP AND GIVE CHIPS AND REMOVE PLAYERS IF NECESSARY
+			for winner in currentWinner : 
+				winner.chips += pot / len(currentWinner)
+			# REMOVE PLAYERS IF NECESSARY
 			startingPlayerIndex = (startingPlayerIndex + 1) % len(self.players)	
 			
 			
